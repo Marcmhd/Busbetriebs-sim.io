@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Krefrath Transit Roleplay – OMSI 2 Busbetrieb</title>
+  <meta name="description" content="Fiktiver OMSI 2 Rollplay-Busbetrieb mit Registrierung, Fuhrpark, Linienangeboten und Map-Portfolio." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #f3efe7;
+      --paper: #fbf8f2;
+      --ink: #131313;
+      --muted: #625d54;
+      --line: #d9d1c4;
+      --accent: #ba3a1b;
+      --accent-2: #184e77;
+      --accent-3: #e3a72f;
+      --dark: #1f2a30;
+      --success: #296b3d;
+      --shadow: 0 20px 60px rgba(18,18,18,0.10);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --max: 1280px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Manrope", sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(227,167,47,0.08), transparent 22%),
+        radial-gradient(circle at 80% 15%, rgba(24,78,119,0.08), transparent 20%),
+        linear-gradient(180deg, #f6f2ea 0%, #f0ebe2 100%);
+      color:var(--ink);
+      overflow-x:hidden;
+    }
+
+    ::selection{
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .grid-overlay{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        linear-gradient(rgba(19,19,19,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19,19,19,0.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.06));
+      z-index:0;
+    }
+
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%}
+    button, input, select{
+      font:inherit;
+    }
+
+    .container{
+      width:min(calc(100% - 2rem), var(--max));
+      margin-inline:auto;
+      position:relative;
+      z-index:1;
+    }
+
+    .section{
+      padding: clamp(4rem, 7vw, 7rem) 0;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:.6rem;
+      font-size:.82rem;
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:var(--accent-2);
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:38px;
+      height:2px;
+      background:var(--accent);
+      display:block;
+    }
+
+    h1,h2,h3{
+      font-family:"Anton", sans-serif;
+      font-weight:400;
+      line-height:.95;
+      letter-spacing:.02em;
+      margin:0 0 1rem;
+      text-transform:uppercase;
+    }
+
+    h1{
+      font-size: clamp(3.6rem, 10vw, 8.5rem);
+      max-width: 9ch;
+    }
+
+    h2{
+      font-size: clamp(2.2rem, 5vw, 4.6rem);
+      max-width: 11ch;
+    }
+
+    h3{
+      font-size: clamp(1.25rem, 2vw, 2rem);
+    }
+
+    p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.75;
+      font-size: clamp(1rem, 1.2vw, 1.08rem);
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(24px);
+      transition:opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.in-view{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .stagger > *{
+      opacity:0;
+      transform:translateY(20px);
+      animation:rise .8s ease forwards;
+    }
+
+    .stagger > *:nth-child(1){animation-delay:.08s}
+    .stagger > *:nth-child(2){animation-delay:.18s}
+    .stagger > *:nth-child(3){animation-delay:.28s}
+    .stagger > *:nth-child(4){animation-delay:.38s}
+    .stagger > *:nth-child(5){animation-delay:.48s}
+    .stagger > *:nth-child(6){animation-delay:.58s}
+
+    @keyframes rise{
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter: blur(14px);
+      background:rgba(251,248,242,.78);
+      border-bottom:1px solid rgba(19,19,19,.08);
+    }
+
+    .nav{
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:.9rem;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+
+    .brand-mark{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(135deg, var(--accent) 0%, #cf5a31 45%, #6d1d09 100%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), var(--shadow);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after{
+      content:"";
+      position:absolute;
+      background:#fff;
+      opacity:.92;
+    }
+
+    .brand-mark::before{
+      width:26px;
+      height:12px;
+      border-radius:4px 4px 6px 6px;
+      top:11px;
+      left:10px;
+    }
+
+    .brand-mark::after{
+      width:18px;
+      height:4px;
+      bottom:10px;
+      left:14px;
+      border-radius:999px;
+      box-shadow: 0 -7px 0 0 #fff;
+    }
+
+    .brand-text{
+      display:flex;
+      flex-direction:column;
+      line-height:1;
+    }
+
+    .brand-text strong{
+      font-size:1rem;
+    }
+
+    .brand-text span{
+      font-size:.76rem;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      margin-top:.18rem;
+    }
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      gap:1.2rem;
+      flex-wrap:wrap;
+    }
+
+    .nav-links a{
+      font-size:.95rem;
+      font-weight:700;
+      color:#3d392f;
+      position:relative;
+    }
+
+    .nav-links a::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-6px;
+      width:0;
+      height:2px;
+      background:var(--accent);
+      transition:width .25s ease;
+    }
+
+    .nav-links a:hover::after{
+      width:100%;
+    }
+
+    .nav-cta{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.7rem;
+      min-height:52px;
+      padding:0 1.2rem;
+      border:none;
+      border-radius:999px;
+      font-weight:800;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+      will-change:transform;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px) scale(1.02);
+    }
+
+    .btn:active{
+      transform:translateY(0) scale(.99);
+    }
+
+    .btn-primary{
+      background:var(--ink);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(19,19,19,.16);
+    }
+
+    .btn-primary:hover{
+      background:#000;
+      box-shadow:0 16px 30px rgba(19,19,19,.22);
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.55);
+      color:var(--ink);
+      border:1px solid rgba(19,19,19,.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero{
+      padding: clamp(2rem, 4vw, 3rem) 0 clamp(4rem, 7vw, 6rem);
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:2rem;
+      align-items:end;
+    }
+
+    .hero-copy{
+      padding-top:2rem;
+    }
+
+    .hero-copy p{
+      max-width: 62ch;
+      font-size:1.08rem;
+      margin-bottom:1.8rem;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:1rem;
+      margin: 2rem 0 2.2rem;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:1rem;
+      max-width:700px;
+    }
+
+    .kpi{
+      padding:1rem 0;
+      border-top:2px solid var(--ink);
+    }
+
+    .kpi strong{
+      display:block;
+      font-family:"Anton", sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height:1;
+      margin-bottom:.3rem;
+    }
+
+    .kpi span{
+      color:var(--muted);
+      font-size:.95rem;
+      font-weight:700;
+    }
+
+    .hero-visual{
+      min-height:560px;
+      border-radius:30px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.3)),
+        linear-gradient(135deg, #d9c9ab 0%, #f6f2e8 30%, #d6e0e5 100%);
+      border:1px solid rgba(19,19,19,.08);
+      position:relative;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      isolation:isolate;
+    }
+
+    .map-lines{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 18% 28%, rgba(186,58,27,.18) 0 10%, transparent 11%),
+        radial-gradient(circle at 70% 35%, rgba(24,78,119,.18) 0 9%, transparent 10%),
+        radial-gradient(circle at 52% 68%, rgba(227,167,47,.2) 0 10%, transparent 11%);
+      opacity:.9;
+    }
+
+    .route-line{
+      position:absolute;
+      border:4px solid transparent;
+      border-radius:999px;
+      opacity:.9;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.12));
+    }
+
+    .route-a{
+      width:72%;
+      height:48%;
+      top:11%;
+      left:9%;
+      border-top-color:var(--accent);
+      border-right-color:var(--accent);
+      transform:rotate(8deg);
+    }
+
+    .route-b{
+      width:60%;
+      height:42%;
+      bottom:10%;
+      right:8%;
+      border-bottom-color:var(--accent-2);
+      border-left-color:var(--accent-2);
+      transform:rotate(-10deg);
+    }
+
+    .route-c{
+      width:44%;
+      height:24%;
+      left:28%;
+      top:42%;
+      border-top-color:var(--accent-3);
+      border-left-color:var(--accent-3);
+      transform:rotate(-2deg);
+    }
+
+    .station{
+      position:absolute;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:var(--ink);
+      border:4px solid #fff;
+      box-shadow:0 10px 18px rgba(0,0,0,.15);
+    }
+
+    .station.s1{top:18%; left:22%}
+    .station.s2{top:29%; right:20%}
+    .station.s3{top:58%; left:48%}
+    .station.s4{bottom:18%; right:24%}
+    .station.s5{bottom:24%; left:18%}
+
+    .bus-panel{
+      position:absolute;
+      left:1.25rem;
+      right:1.25rem;
+      bottom:1.25rem;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:1rem;
+      align-items:end;
+    }
+
+    .bus-card{
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(19,19,19,.09);
+      backdrop-filter: blur(14px);
+      border-radius:24px;
+      padding:1.25rem;
+      box-shadow: 0 20px 40px rgba(19,19,19,.08);
+    }
+
+    .bus-illustration{
+      margin-top:.8rem;
+      height:120px;
+      border-radius:18px;
+      position:relative;
+      background:
+        linear-gradient(180deg, rgba(24,78,119,.1), rgba(24,78,119,.03)),
+        repeating-linear-gradient(90deg, transparent 0 44px, rgba(19,19,19,.03) 44px 46px);
+      overflow:hidden;
+    }
+
+    .bus{
+      position:absolute;
+      left:6%;
+      right:10%;
+      bottom:18px;
+      height:58px;
+      background: linear-gradient(180deg, #c84324, #96270f);
+      border-radius:14px 16px 10px 10px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+
+    .bus::before{
+      content:"";
+      position:absolute;
+      left:12px;
+      right:80px;
+      top:10px;
+      height:20px;
+      border-radius:6px;
+      background:
+        repeating-linear-gradient(90deg, rgba(233,244,249,.95) 0 32px, rgba(255,255,255,.25) 32px 35px);
+    }
+
+    .bus::after{
+      content:"";
+      position:absolute;
+      right:16px;
+      top:12px;
+      width:48px;
+      height:18px;
+      border-radius:4px;
+      background:#f2d56c;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.08) inset;
+    }
+
+    .wheel{
+      position:absolute;
+      bottom:-10px;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:#1a1a1a;
+      border:4px solid #4f4f4f;
+    }
+
+    .wheel.w1{left:56px}
+    .wheel.w2{right:70px}
+
+    .bus-badge{
+      min-width:140px;
+      background:var(--ink);
+      color:#fff;
+      border-radius:20px;
+      padding:1rem;
+      text-align:left;
+      box-shadow:0 18px 40px rgba(19,19,19,.25);
+    }
+
+    .bus-badge small{
+      display:block;
+      color:rgba(255,255,255,.7);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:.72rem;
+      margin-bottom:.4rem;
+    }
+
+    .bus-badge strong{
+      display:block;
+      font-family:"Anton", sans-serif;
+      font-size:2.15rem;
+      line-height:1;
+    }
+
+    .editorial{
+      display:grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap:2rem;
+      align-items:start;
+    }
+
+    .quote-panel{
+      background:var(--ink);
+      color:#f5f0e8;
+      border-radius:28px;
+      padding:2rem;
+      position:relative;
+      overflow:hidden;
+      min-height:100%;
+    }
+
+    .quote-panel::before{
+      content:"RP";
+      position:absolute;
+      right:1rem;
+      top:.2rem;
+      font-family:"Anton", sans-serif;
+      font-size:9rem;
+      line-height:1;
+      color:rgba(255,255,255,.05);
+    }
+
+    .quote-panel p{
+      color:rgba(245,240,232,.78);
+      max-width:38ch;
+    }
+
+    .quote-panel strong{
+      display:block;
+      font-size:1rem;
+      margin-top:1.5rem;
+      color:#fff;
+    }
+
+    .feature-rows{
+      display:grid;
+      gap:1.1rem;
+    }
+
+    .feature-row{
+      display:grid;
+      grid-template-columns: 100px 1fr;
+      gap:1rem;
+      align-items:start;
+      padding:1rem 0 1.2rem;
+      border-bottom:1px solid var(--line);
+    }
+
+    .feature-row:last-child{
+      border-bottom:none;
+    }
+
+    .feature-no{
+      font-family:"Anton", sans-serif;
+      font-size:2.2rem;
+      color:var(--accent);
+      line-height:1;
+    }
+
+    .split-head{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:1rem;
+      align-items:end;
+      margin-bottom:2rem;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      padding:.7rem 1rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.66);
+      border:1px solid rgba(19,19,19,.08);
+      color:#4b463d;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(19,19,19,.05);
+    }
+
+    .fleet-grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:1rem;
+    }
+
+    .fleet-block{
+      border-radius:28px;
+      padding:1.4rem;
+      border:1px solid rgba(19,19,19,.08);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      min-height:220px;
+    }
+
+    .fleet-block h3{
+      margin-bottom:.5rem;
+    }
+
+    .fleet-block p{
+      max-width:36ch;
+    }
+
+    .fleet-block.large{grid-column: span 7; background:linear-gradient(180deg, #fffaf3, #f4ebdc)}
+    .fleet-block.tall{grid-column: span 5; background:linear-gradient(180deg, #e7eef3, #dce7ed)}
+    .fleet-block.wide{grid-column: span 8; background:linear-gradient(180deg, #f9efe8, #f4e3d7)}
+    .fleet-block.small{grid-column: span 4; background:linear-gradient(180deg, #f0f1e7, #eaeddd)}
+
+    .fleet-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.6rem;
+      margin-top:1rem;
+    }
+
+    .fleet-meta span{
+      padding:.5rem .8rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(19,19,19,.06);
+      font-size:.85rem;
+      font-weight:800;
+    }
+
+    .bus-schematic{
+      position:absolute;
+      right:1rem;
+      bottom:1rem;
+      width:180px;
+      height:78px;
+      opacity:.95;
+    }
+
+    .lines-layout{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:1.2rem;
+      align-items:stretch;
+    }
+
+    .map-list{
+      background:var(--paper);
+      border-radius:30px;
+      border:1px solid rgba(19,19,19,.08);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .map-item{
+      display:grid;
+      grid-template-columns: auto 1fr auto;
+      gap:1rem;
+      align-items:center;
+      padding:1.2rem 1.25rem;
+      border-bottom:1px solid var(--line);
+      cursor:pointer;
+      transition:background .2s ease, transform .2s ease;
+    }
+
+    .map-item:last-child{border-bottom:none}
+    .map-item:hover{
+      background:#f8f3ea;
+      transform:translateX(4px);
+    }
+
+    .map-item.active{
+      background:#efe6d5;
+    }
+
+    .map-code{
+      font-family:"Anton", sans-serif;
+      font-size:2rem;
+      color:var(--accent-2);
+      line-height:1;
+    }
+
+    .map-item strong{
+      display:block;
+      font-size:1rem;
+      margin-bottom:.2rem;
+    }
+
+    .map-item span{
+      font-size:.92rem;
+      color:var(--muted);
+    }
+
+    .arrow{
+      font-size:1.3rem;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .line-detail{
+      background:linear-gradient(180deg, #1f2a30, #121a1f);
+      color:#fff;
+      border-radius:30px;
+      padding:1.4rem;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 26px 60px rgba(17,24,29,.28);
+    }
+
+    .line-detail::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(227,167,47,.16), transparent 18%),
+        radial-gradient(circle at 80% 70%, rgba(186,58,27,.18), transparent 22%);
+      pointer-events:none;
+    }
+
+    .line-detail > *{
+      position:relative;
+      z-index:1;
+    }
+
+    .line-top{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:end;
+      margin-bottom:1.25rem;
+    }
+
+    .line-top p{
+      color:rgba(255,255,255,.72);
+      max-width:48ch;
+    }
+
+    .line-badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.65rem;
+      margin:1rem 0 1.4rem;
+    }
+
+    .line-badges span{
+      display:inline-flex;
+      padding:.55rem .8rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      color:#fff;
+      font-weight:700;
+      font-size:.86rem;
+    }
+
+    .route-stops{
+      display:grid;
+      gap:.85rem;
+      margin-top:1.3rem;
+    }
+
+    .stop{
+      display:grid;
+      grid-template-columns: 26px 1fr auto;
+      align-items:center;
+      gap:.8rem;
+    }
+
+    .dot{
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:var(--accent-3);
+      box-shadow:0 0 0 6px rgba(227,167,47,.14);
+    }
+
+    .stop strong{
+      font-size:.98rem;
+    }
+
+    .stop small{
+      color:rgba(255,255,255,.62);
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+
+    .register-wrap{
+      display:grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap:1.5rem;
+      align-items:start;
+    }
+
+    .register-copy{
+      padding-right:1rem;
+    }
+
+    .requirements{
+      display:grid;
+      gap:1rem;
+      margin-top:1.6rem;
+    }
+
+    .requirements div{
+      display:grid;
+      grid-template-columns: 54px 1fr;
+      gap:.9rem;
+      align-items:start;
+    }
+
+    .requirements b{
+      width:54px;
+      height:54px;
+      display:grid;
+      place-items:center;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid rgba(19,19,19,.08);
+      box-shadow:0 10px 24px rgba(19,19,19,.06);
+      font-family:"Anton", sans-serif;
+      font-size:1.2rem;
+      color:var(--accent);
+    }
+
+    .form-shell{
+      background:rgba(255,255,255,.64);
+      border:1px solid rgba(19,19,19,.08);
+      backdrop-filter: blur(16px);
+      box-shadow:var(--shadow);
+      border-radius:30px;
+      padding:1.4rem;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:1rem;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+    }
+
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    label{
+      font-size:.88rem;
+      font-weight:800;
+      color:#3f3a30;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      padding:1rem 1rem;
+      background:#fff;
+      color:var(--ink);
+      border:1px solid rgba(19,19,19,.08);
+      outline:none;
+      transition:border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+    }
+
+    textarea{
+      min-height:140px;
+      resize:vertical;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--accent-2);
+      box-shadow:0 0 0 4px rgba(24,78,119,.10);
+    }
+
+    .checkbox{
+      display:flex;
+      align-items:flex-start;
+      gap:.8rem;
+      margin:1rem 0 1.2rem;
+    }
+
+    .checkbox input{
+      width:18px;
+      height:18px;
+      margin-top:.25rem;
+    }
+
+    .status{
+      margin-top:1rem;
+      font-weight:800;
+      font-size:.94rem;
+      color:var(--success);
+      min-height:1.2rem;
+    }
+
+    footer{
+      padding:2rem 0 3rem;
+      border-top:1px solid rgba(19,19,19,.08);
+      position:relative;
+      z-index:1;
+    }
+
+    .footer-grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:1.5rem;
+      align-items:end;
+    }
+
+    .footer-grid p{
+      max-width:58ch;
+    }
+
+    .footer-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:1rem;
+      justify-content:flex-end;
+      font-weight:800;
+      color:#3f3a30;
+    }
+
+    @media (max-width: 1050px){
+      .hero-grid,
+      .editorial,
+      .lines-layout,
+      .register-wrap,
+      .footer-grid{
+        grid-template-columns:1fr;
+      }
+
+      .fleet-block.large,
+      .fleet-block.tall,
+      .fleet-block.wide,
+      .fleet-block.small{
+        grid-column: span 12;
+      }
+
+      .hero-visual{
+        min-height:460px;
+      }
+
+      .register-copy{
+        padding-right:0;
+      }
+
+      .footer-links{
+        justify-content:flex-start;
+      }
+    }
+
+    @media (max-width: 760px){
+      .nav{
+        flex-wrap:wrap;
+        padding:.9rem 0;
+      }
+
+      .nav-links{
+        order:3;
+        width:100%;
+        justify-content:space-between;
+        gap:.8rem;
+        padding-top:.4rem;
+      }
+
+      .kpis{
+        grid-template-columns:1fr;
+      }
+
+      .feature-row{
+        grid-template-columns: 1fr;
+      }
+
+      .split-head{
+        grid-template-columns:1fr;
+        align-items:start;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .bus-panel{
+        grid-template-columns:1fr;
+      }
+
+      .hero-visual{
+        min-height:420px;
+      }
+
+      h1{
+        max-width:12ch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="container nav">
+      <a href="#start" class="brand" aria-label="Krefrath Transit Roleplay Startseite">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-text">
+          <strong>Krefrath Transit</strong>
+          <span>OMSI 2 Roleplay Betrieb</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#fuhrpark">Fuhrpark</a>
+        <a href="#linien">Linien & Maps</a>
+        <a href="#bewerbung">Registrierung</a>
+        <a href="#portfolio">Portfolio</a>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="btn btn-secondary" href="#linien">Linien ansehen</a>
+        <a class="btn btn-primary" href="#bewerbung">Jetzt registrieren</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="start">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy stagger">
+          <span class="eyebrow">Virtueller Busbetrieb für OMSI 2</span>
+          <h1>Fahre Linien. Verwalte Fuhrpark. Werde Teil des Betriebs.</h1>
+          <p>
+            Willkommen bei einem fiktiven OMSI 2 Roleplay-Busbetrieb mit eigener Struktur,
+            Linienplanung, Fahrzeugverwaltung und interner Bewerbung für ausgewählte Fahrerinnen
+            und Fahrer. Ob Krefrath, Städtedreieck V3 oder weitere Maps – hier wird das gesamte
+            Portfolio übersichtlich gebündelt.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#bewerbung" class="btn btn-primary">Zur Registrierung</a>
+            <a href="#portfolio" class="btn btn-secondary">Betriebsübersicht</a>
+          </div>
+
+          <div class="kpis" aria-label="Kennzahlen">
+            <div class="kpi">
+              <strong>28+</strong>
+              <span>Fiktive Fahrzeuge im Betrieb</span>
+            </div>
+            <div class="kpi">
+              <strong>14</strong>
+              <span>Linien über mehrere Maps</span>
+            </div>
+            <div class="kpi">
+              <strong>100%</strong>
+              <span>Roleplay-orientierte Organisation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal" aria-hidden="true">
+          <div class="map-lines"></div>
+          <div class="route-line route-a"></div>
+          <div class="route-line route-b"></div>
+          <div class="route-line route-c"></div>
+
+          <div class="station s1"></div>
+          <div class="station s2"></div>
+          <div class="station s3"></div>
+          <div class="station s4"></div>
+          <div class="station s5"></div>
+
+          <div class="bus-panel">
+            <div class="bus-card">
+              <span class="eyebrow">Live-Betriebsansicht</span>
+              <h3>Fuhrpark & Linien digital organisiert</h3>
+              <p>
+                Ideal für interne Zugriffe auf Fahrzeuge, Dienstpläne, Kartenpakete und
+                Linieninformationen innerhalb eures fiktiven OMSI 2 Busunternehmens.
+              </p>
+              <div class="bus-illustration">
+                <div class="bus">
+                  <div class="wheel w1"></div>
+                  <div class="wheel w2"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bus-badge">
+              <small>Aktive Linie</small>
+              <strong>602</strong>
+              <span>Krefrath Hbf → Westpark</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="portfolio">
+      <div class="container editorial">
+        <div class="quote-panel reveal">
+          <span class="eyebrow" style="color:#f1ba57">Betriebsidee</span>
+          <h2 style="max-width:8ch">Mehr als nur fahren.</h2>
+          <p>
+            Diese Website ist als zentrale Plattform für euer Rollplay gedacht: Registrierung
+            neuer Mitglieder, Übersicht über den Fuhrpark, Linienangebote auf unterschiedlichen
+            Maps und eine klare Struktur für das gesamte Roleplay-Portfolio.
+          </p>
+          <strong>Geeignet für Teams, Fahrdienstleitung und Community-Verwaltung.</strong>
+        </div>
+
+        <div class="feature-rows reveal">
+          <div class="feature-row">
+            <div class="feature-no">01</div>
+            <div>
+              <h3>Mitglieder registrieren</h3>
+              <p>
+                Neue Fahrer können sich über ein Formular bewerben und interne Voraussetzungen
+                angeben, zum Beispiel OMSI-Erfahrung, bevorzugte Maps oder verfügbare Zeiten.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="feature-no">02</div>
+            <div>
+              <h3>Fuhrpark zentral anzeigen</h3>
+              <p>
+                Zeigt eure verfügbaren Fahrzeuge, Einsatzbereiche, Lackierungen und
+                Besonderheiten pro Bustyp in einer professionellen Übersicht.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="feature-no">03</div>
+            <div>
+              <h3>Linien pro Map strukturieren</h3>
+              <p>
+                Jede Map kann mit ihren Linien, Umläufen und Streckenabschnitten dargestellt
+                werden – ideal für Krefrath, Städtedreieck V3 und weitere Projekte.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="feature-no">04</div>
+            <div>
+              <h3>Portfolio erweitern</h3>
+              <p>
+                Die Seite kann später leicht um Dienstpläne, Teamseiten, News, Downloads,
+                Regelwerke oder ein internes Login-System ausgebaut werden.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fuhrpark">
+      <div class="container">
+        <div class="split-head reveal">
+          <div>
+            <span class="eyebrow">Fuhrpark</span>
+            <h2>Fahrzeuge mit klarer Einsatzlogik.</h2>
+          </div>
+          <div class="pill">Vom Stadtbus bis zum Solowagen – sauber gegliedert</div>
+        </div>
+
+        <div class="fleet-grid">
+          <article class="fleet-block large reveal">
+            <h3>MAN Stadtbus-Serie</h3>
+            <p>
+              Universell einsetzbar für dichte Taktungen, zentrale Stadtlinien und
+              Standardumlaufpläne. Perfekt für Kernbetrieb und häufige Einsätze auf
+              urbanen Karten.
+            </p>
+            <div class="fleet-meta">
+              <span>Linien 101–699</span>
+              <span>Hauptnetz</span>
+              <span>Hohe Verfügbarkeit</span>
+            </div>
+            <svg class="bus-schematic" viewBox="0 0 220 100" fill="none" aria-hidden="true">
+              <rect x="12" y="24" width="180" height="42" rx="10" fill="#c84324"/>
+              <rect x="24" y="32" width="120" height="14" rx="4" fill="#dceef5"/>
+              <rect x="150" y="33" width="28" height="12" rx="3" fill="#f2d56c"/>
+              <circle cx="50" cy="72" r="12" fill="#202020"/>
+              <circle cx="154" cy="72" r="12" fill="#202020"/>
+            </svg>
+          </article>
+
+          <article class="fleet-block tall reveal">
+            <h3>Mercedes Citaro</h3>
+            <p>
+              Bewährtes Fahrzeug für Roleplay-Einsätze mit realistischer Linienzuweisung,
+              flexiblen Umläufen und hoher Wiedererkennbarkeit im Fuhrpark.
+            </p>
+            <div class="fleet-meta">
+              <span>Stadt & Vorort</span>
+              <span>RP-Favorit</span>
+            </div>
+          </article>
+
+          <article class="fleet-block small reveal">
+            <h3>Setra Überland</h3>
+            <p>
+              Für längere Verbindungen, Randgebiete und ruhigere Streckenabschnitte.
+            </p>
+            <div class="fleet-meta">
+              <span>Regional</span>
+              <span>Komfort</span>
+            </div>
+          </article>
+
+          <article class="fleet-block wide reveal">
+            <h3>Event- und Sonderfahrzeuge</h3>
+            <p>
+              Ideal für Schienenersatzverkehr, Sonderlinien, Community-Events oder
+              interne Betriebseinsätze. Dieser Bereich kann individuell an eure
+              Rollplay-Struktur angepasst werden.
+            </p>
+            <div class="fleet-meta">
+              <span>SEV</span>
+              <span>Events</span>
+              <span>Sonderumläufe</span>
+              <span>Community-Fahrten</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="linien">
+      <div class="container">
+        <div class="split-head reveal">
+          <div>
+            <span class="eyebrow">Linienangebot & Maps</span>
+            <h2>Alle Strecken auf einen Blick.</h2>
+          </div>
+          <div class="pill">Interaktive Map-Auswahl für euer OMSI-Portfolio</div>
+        </div>
+
+        <div class="lines-layout">
+          <div class="map-list reveal" role="tablist" aria-label="Map-Auswahl">
+            <div class="map-item active" role="tab" tabindex="0" aria-selected="true"
+                 data-map="krefrath"
+                 data-title="Krefrath"
+                 data-subtitle="Urbanes Kernnetz mit dichter Innenstadtbedienung"
+                 data-lines="602, 611, 624, N8"
+                 data-ops="Schwerpunkt: Stadtverkehr, Hauptbahnhof, Gewerbepark"
+                 data-stops="Hauptbahnhof|Zentraler Umstieg;Marktstraße|Innenstadt;Westpark|Wohngebiet;Industrie Süd|Berufsverkehr;Depot Krefrath|Betriebshof">
+              <div class="map-code">K</div>
+              <div>
+                <strong>Krefrath</strong>
+                <span>Innenstadt, Hauptbahnhof, Wohngebiete, Gewerbepark</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+
+            <div class="map-item" role="tab" tabindex="0" aria-selected="false"
+                 data-map="staedtedreieck"
+                 data-title="Städtedreieck V3"
+                 data-subtitle="Verknüpft mehrere Stadtteile mit regionalem Übergang"
+                 data-lines="120, 121, 340, X12"
+                 data-ops="Schwerpunkt: Mischverkehr, Schnelllinie, Vorortanbindung"
+                 data-stops="Dreieck ZOB|Zentraler Knoten;Nordtor|Stadtgrenze;Universität|Tagesverkehr;Südbahnhof|Regionale Anbindung;Eichenhöhe|Endpunkt">
+              <div class="map-code">S3</div>
+              <div>
+                <strong>Städtedreieck V3</strong>
+                <span>Stadtverbund mit Schnell- und Regionalcharakter</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+
+            <div class="map-item" role="tab" tabindex="0" aria-selected="false"
+                 data-map="rheinhausen"
+                 data-title="Rheinhausen"
+                 data-subtitle="Vorstadt- und Pendlerverkehr mit ruhigerem Takt"
+                 data-lines="210, 214, 227"
+                 data-ops="Schwerpunkt: Pendelverkehr, Schulverkehr, Vororte"
+                 data-stops="Rheinhausen Bahnhof|Bahnanschluss;Schulzentrum|Schülerverkehr;Altenfeld|Wohngebiet;Am Kanal|Gewerbezone;Sonnenberg|Außenast">
+              <div class="map-code">R</div>
+              <div>
+                <strong>Rheinhausen</strong>
+                <span>Pendlerachsen, Schulverkehr und Außenäste</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+
+            <div class="map-item" role="tab" tabindex="0" aria-selected="false"
+                 data-map="delpest"
+                 data-title="Dél-Pest (Budapest)"
+                 data-subtitle="Große moderne Stadt mit mehreren Linien und Expressverbindungen"
+                 data-lines="182, 183, 184, E1, E2"
+                 data-ops="Schwerpunkt: Großstadt, Expresslinien, komplexes Liniennetz"
+                 data-stops="Központi Pályaudvar|Hauptbahnhof;Városközpont|Innenstadt;Déli Kert|Wohngebiet;Ipari Park|Gewerbegebiet;Külső Zóna|Außenbezirk">
+              <div class="map-code">DP</div>
+              <div>
+                <strong>Dél-Pest (Budapest)</strong>
+                <span>Großstadt mit Express- und Standardlinien</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+
+            <div class="map-item" role="tab" tabindex="0" aria-selected="false"
+                 data-map="aachen"
+                 data-title="Aachen"
+                 data-subtitle="Lebendige Stadt mit langen, abwechslungsreichen Routen"
+                 data-lines="1, 2, 3, 4, 5"
+                 data-ops="Schwerpunkt: Stadtverkehr, abwechslungsreiche Linienführung"
+                 data-stops="Hauptbahnhof|Zentraler Umstieg;Marktplatz|Innenstadt;Westviertel|Wohngebiet;Industriepark|Berufsverkehr;Betriebshof|Depot">
+              <div class="map-code">A</div>
+              <div>
+                <strong>Aachen</strong>
+                <span>Lebendige Stadt mit vielfältigen Linien</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+
+            <div class="map-item" role="tab" tabindex="0" aria-selected="false"
+                 data-map="event"
+                 data-title="Sondernetz / Eventbetrieb"
+                 data-subtitle="Flexibles Portfolio für Aktionen, Events und Ersatzverkehre"
+                 data-lines="SEV 1, SEV 2, E77"
+                 data-ops="Schwerpunkt: Community-Einsätze, Eventbetrieb, Sonderlagen"
+                 data-stops="Messezentrum|Eventstart;Arena Ost|Hohe Nachfrage;Innenring|Verstärkerverkehr;Bahnhof Mitte|SEV-Knoten;Betriebshof|Rücklauf">
+              <div class="map-code">E</div>
+              <div>
+                <strong>Sondernetz</strong>
+                <span>SEV, Verstärker und temporäre Umläufe</span>
+              </div>
+              <div class="arrow">→</div>
+            </div>
+          </div>
+
+          <article class="line-detail reveal" id="lineDetail" aria-live="polite">
+            <div class="line-top">
+              <div>
+                <span class="eyebrow" style="color:#f1ba57">Map-Details</span>
+                <h3 id="detailTitle">Krefrath</h3>
+              </div>
+              <div class="pill" style="background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.1); color:#fff;">
+                OMSI 2 Roleplay Einsatz
+              </div>
+            </div>
+
+            <p id="detailSubtitle">
+              Urbanes Kernnetz mit dichter Innenstadtbedienung
+            </p>
+
+            <div class="line-badges" id="detailLines">
+              <span>602</span>
+              <span>611</span>
+              <span>624</span>
+              <span>N8</span>
+            </div>
+
+            <p id="detailOps">
+              Schwerpunkt: Stadtverkehr, Hauptbahnhof, Gewerbepark
+            </p>
+
+            <div class="route-stops" id="detailStops">
+              <div class="stop"><div class="dot"></div><strong>Hauptbahnhof</strong><small>Zentraler Umstieg</small></div>
+              <div class="stop"><div class="dot"></div><strong>Marktstraße</strong><small>Innenstadt</small></div>
+              <div class="stop"><div class="dot"></div><strong>Westpark</strong><small>Wohngebiet</small></div>
+              <div class="stop"><div class="dot"></div><strong>Industrie Süd</strong><small>Berufsverkehr</small></div>
+              <div class="stop"><div class="dot"></div><strong>Depot Krefrath</strong><small>Betriebshof</small></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bewerbung">
+      <div class="container register-wrap">
+        <div class="register-copy reveal">
+          <span class="eyebrow">Registrierung</span>
+          <h2>Bewirb dich für unseren fiktiven Betrieb.</h2>
+          <p>
+            Über dieses Formular können sich interessierte Personen für euren OMSI 2
+            Roleplay-Busbetrieb registrieren. In einer echten Version könnte das Formular
+            später an Discord, E-Mail, Datenbank oder ein Login-System angebunden werden.
+          </p>
+
+          <div class="requirements">
+            <div>
+              <b>1</b>
+              <div>
+                <h3>OMSI 2 Grundkenntnisse</h3>
+                <p>Erfahrung mit Maps, Bussen und Linienfahrten ist von Vorteil.</p>
+              </div>
+            </div>
+            <div>
+              <b>2</b>
+              <div>
+                <h3>Zuverlässigkeit im Roleplay</h3>
+                <p>Regelmäßige Teilnahme und realistische Einsätze stärken euer Projekt.</p>
+              </div>
+            </div>
+            <div>
+              <b>3</b>
+              <div>
+                <h3>Interesse am Betriebssystem</h3>
+                <p>Fuhrpark, Linienlogik und Teamorganisation stehen hier im Mittelpunkt.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-shell reveal">
+          <form id="registerForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="name">Name / Benutzername</label>
+                <input type="text" id="name" name="name" placeholder="z. B. MaxBusfahrer" required>
+              </div>
+
+              <div class="field">
+                <label for="age">Alter</label>
+                <input type="number" id="age" name="age" placeholder="z. B. 18" min="12" max="99" required>
+              </div>
+
+              <div class="field">
+                <label for="discord">Discord</label>
+                <input type="text" id="discord" name="discord" placeholder="Name#1234 oder Benutzername" required>
+              </div>
+
+              <div class="field">
+                <label for="map">Bevorzugte Map</label>
+                <select id="map" name="map" required>
+                  <option value="">Bitte auswählen</option>
+                  <option>Krefrath</option>
+                  <option>Städtedreieck V3</option>
+                  <option>Rheinhausen</option>
+                  <option>Dél-Pest (Budapest)</option>
+                  <option>Aachen</option>
+                  <option>Sondernetz / Eventbetrieb</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="vehicle">Lieblingsfahrzeug</label>
+                <select id="vehicle" name="vehicle" required>
+                  <option value="">Bitte auswählen</option>
+                  <option>MAN Stadtbus</option>
+                  <option>Mercedes Citaro</option>
+                  <option>Setra Überland</option>
+                  <option>Flexibel / egal</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="experience">OMSI-Erfahrung</label>
+                <select id="experience" name="experience" required>
+                  <option value="">Bitte auswählen</option>
+                  <option>Anfänger</option>
+                  <option>Fortgeschritten</option>
+                  <option>Erfahren</option>
+                </select>
+              </div>
+
+              <div class="field full">
+                <label for="message">Warum möchtest du beitreten?</label>
+                <textarea id="message" name="message" placeholder="Erzähle kurz etwas über dich, deine Erfahrung und warum du Teil des Busbetriebs werden möchtest." required></textarea>
+              </div>
+            </div>
+
+            <label class="checkbox">
+              <input type="checkbox" id="rules" required>
+              <span>
+                Ich bestätige, dass es sich um ein fiktives Roleplay-Projekt handelt und ich
+                die internen Regeln des Busbetriebs akzeptiere.
+              </span>
+            </label>
+
+            <button type="submit" class="btn btn-primary">Bewerbung absenden</button>
+            <div class="status" id="formStatus" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <span class="eyebrow">Krefrath Transit Roleplay</span>
+        <p>
+          Demo-Website für einen fiktiven OMSI 2 Busbetrieb. Diese Vorlage kann als Basis
+          für euer vollständiges Projekt dienen – inklusive Teamseite, Fuhrparkverwaltung,
+          Linienarchiv, News und Mitgliederbereich.
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <a href="#start">Start</a>
+        <a href="#fuhrpark">Fuhrpark</a>
+        <a href="#linien">Linien</a>
+        <a href="#bewerbung">Registrierung</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+        }
+      });
+    }, { threshold: 0.14 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    const mapItems = document.querySelectorAll('.map-item');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailSubtitle = document.getElementById('detailSubtitle');
+    const detailLines = document.getElementById('detailLines');
+    const detailOps = document.getElementById('detailOps');
+    const detailStops = document.getElementById('detailStops');
+
+    function updateDetail(item){
+      mapItems.forEach(el => {
+        el.classList.remove('active');
+        el.setAttribute('aria-selected', 'false');
+      });
+
+      item.classList.add('active');
+      item.setAttribute('aria-selected', 'true');
+
+      detailTitle.textContent = item.dataset.title;
+      detailSubtitle.textContent = item.dataset.subtitle;
+      detailOps.textContent = item.dataset.ops;
+
+      detailLines.innerHTML = '';
+      item.dataset.lines.split(',').forEach(line => {
+        const badge = document.createElement('span');
+        badge.textContent = line.trim();
+        detailLines.appendChild(badge);
+      });
+
+      detailStops.innerHTML = '';
+      item.dataset.stops.split(';').forEach(stopEntry => {
+        const [name, type] = stopEntry.split('|');
+        const stop = document.createElement('div');
+        stop.className = 'stop';
+        stop.innerHTML = `
+          <div class="dot"></div>
+          <strong>${name}</strong>
+          <small>${type}</small>
+        `;
+        detailStops.appendChild(stop);
+      });
+    }
+
+    mapItems.forEach(item => {
+      item.addEventListener('click', () => updateDetail(item));
+      item.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          updateDetail(item);
+        }
+      });
+    });
+
+    const registerForm = document.getElementById('registerForm');
+    const formStatus = document.getElementById('formStatus');
+
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      if(!name){
+        formStatus.textContent = 'Bitte fülle zuerst alle Pflichtfelder aus.';
+        formStatus.style.color = '#ba3a1b';
+        return;
+      }
+
+      formStatus.textContent = `Danke ${name} – deine Bewerbung wurde vorgemerkt. In einer echten Version könnte sie jetzt an Discord, E-Mail oder eine Datenbank gesendet werden.`;
+      formStatus.style.color = '#296b3d';
+      registerForm.reset();
+    });
+  </script>
+</body>
+</html>
